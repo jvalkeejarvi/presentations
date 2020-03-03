@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>RxJS</title>
+<meta name="author" content="Juuso Valkeejärvi"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@3.9.2/css/reveal.css"/>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@3.9.2/css/theme/night.css" id="theme"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@3.9.2/lib/css/monokai.css"/>
+
+<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+<script>
+    if( window.location.search.match( /print-pdf/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = 'https://cdn.jsdelivr.net/npm/reveal.js@3.9.2/css/print/pdf.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+    }
+</script>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide">
+<h1 class="title">RxJS</h1><h2 class="author">Juuso Valkeejärvi</h2><p class="date">Created: 2020-03-03 ti 14:28</p>
+</section>
+<section>
+<section id="slide-orgfe79a1b">
+<h2 id="orgfe79a1b">RxJS</h2>
+<ul>
+<li class="fragment appear">library for reactive programming</li>
+<li class="fragment appear">implementations for other languages exist (RxJava, Rx.NET&#x2026;)</li>
+<li class="fragment appear">uses observables instead of promises for async code</li>
+<li class="fragment appear">comes with multiple operators</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org37af382">
+<h2 id="org37af382">Major differences between observables and promises</h2>
+<ul>
+<li class="fragment appear">promises are eager, code is executed even before calling then</li>
+<li class="fragment appear">observables are lazy, code is executed just when it is subscribed</li>
+<li class="fragment appear">observables can be synchronous</li>
+<li class="fragment appear">observables can emit multiple values, promises just one</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org89f90c6">
+<h2 id="org89f90c6">Subjects vs Observables</h2>
+<ul>
+<li class="fragment appear">subjects keep state of their observers</li>
+<li class="fragment appear">subject is both observer and observable</li>
+<li class="fragment appear">next can be explicitly called on subjects</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org3879284">
+<h2 id="org3879284">Different kind of subjects</h2>
+<div class="outline-text-2" id="text-org3879284">
+</div>
+</section>
+<section id="slide-org0883b09">
+<h3 id="org0883b09">Subject</h3>
+</section>
+<section id="slide-orgcd101ca">
+<h3 id="orgcd101ca">ReplaySubject</h3>
+<ul>
+<li class="fragment appear">late subscribers get the latest value on subscription
+<ul>
+<li class="fragment appear">word replay usually means that late subscribers get the value too, eg. ShareReplay</li>
+
+</ul></li>
+
+</ul>
+</section>
+<section id="slide-org1c7ccd1">
+<h3 id="org1c7ccd1">BehaviorSubject</h3>
+<ul>
+<li class="fragment appear">like ReplaySubject but initial value must be given</li>
+<li class="fragment appear"><p>
+value property can be accessed synchronously
+</p>
+<div class="org-src-container">
+
+<pre class="fragment (appear)"><code class=" typescript" >const data = new BehaviorSubject&lt;string&gt;('some string');
+console.log(data.value);
+</code></pre>
+</div></li>
+
+</ul>
+
+</section>
+<section id="slide-orge8b0b45">
+<h3 id="orge8b0b45">AsyncSubject</h3>
+<ul>
+<li>emits latest value when it completes</li>
+
+</ul>
+<div class="org-src-container">
+
+<pre class="fragment (appear)"><code class=" typescript" data-line-numbers="|1|6-9|10|3">const data = new AsyncSubject&lt;string&gt;();
+data.subscribe(value =&gt; {
+  console.log(value); /* only 'ddd' is logged */
+})
+
+data.next('aaa');
+data.next('bbb');
+data.next('ccc');
+data.next('ddd');
+data.complete();
+</code></pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org1552ba7">
+<h2 id="org1552ba7">Common operators</h2>
+<div class="outline-text-2" id="text-org1552ba7">
+</div>
+</section>
+<section id="slide-orgc7dfebc">
+<h3 id="orgc7dfebc">map</h3>
+</section>
+<section id="slide-org68e4ef1">
+<h3 id="org68e4ef1">filter</h3>
+</section>
+<section id="slide-org633b37a">
+<h3 id="org633b37a">tap</h3>
+</section>
+<section id="slide-org899a1a6">
+<h3 id="org899a1a6">switchMap</h3>
+</section>
+<section id="slide-org12b15c6">
+<h3 id="org12b15c6">catchError</h3>
+</section>
+<section id="slide-org6a819a8">
+<h3 id="org6a819a8">debounceTime</h3>
+</section>
+<section id="slide-orgc60f9be">
+<h3 id="orgc60f9be">distintUntilChanged</h3>
+</section>
+<section id="slide-org9e23213">
+<h3 id="org9e23213">shareReplay</h3>
+</section>
+<section id="slide-org425cc1c">
+<h3 id="org425cc1c">finalize</h3>
+</section>
+<section id="slide-orgc9739fc">
+<h3 id="orgc9739fc">startWith</h3>
+</section>
+</section>
+<section>
+<section id="slide-org5f2b772">
+<h2 id="org5f2b772">Good practices</h2>
+<ul>
+<li class="fragment appear">never reassing observables</li>
+<li class="fragment appear">never nest subscriptions, use pipe operators instead</li>
+<li class="fragment appear">avoid explicit subscriptions in components, always use async pipe when possible</li>
+<li class="fragment appear">ensure that subscriptions are always unsubscribe
+<ul>
+<li class="fragment appear">async pipe handles this by itself</li>
+<li class="fragment appear">by using takeUntil and calling next for subject in ngOnDestroy</li>
+<li class="fragment appear">storing subscription explicitly unsubscribing in ngOnDestroy</li>
+
+</ul></li>
+
+</ul>
+</section>
+<section id="slide-orgbb8aadf">
+<h3 id="orgbb8aadf">Refreshing value of shared observable</h3>
+<div class="org-src-container">
+
+<pre class="fragment (appear)"><code class=" typescript" data-line-numbers="1-2|5-9|11-12">private readonly data$: Observable&lt;SomeType&gt;;
+private readonly refresh$: ReplaySubject&lt;void&gt; = new ReplaySubject();
+
+public constructor() {
+  this.data$ = refresh$.pipe(
+    switchMap(/* do some request*/)
+    shareReplay({ refCount: true, bufferSize: 1})
+  );
+}
+
+private refreshData(): void {
+  this.refresh$.next();
+}
+</code></pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org7ae89ee">
+<h2 id="org7ae89ee">Pitfalls</h2>
+<div class="outline-text-2" id="text-org7ae89ee">
+</div>
+</section>
+<section id="slide-org60fccdb">
+<h3 id="org60fccdb"><code class="src src-typescript"><span style="color: #4f97d7; font-weight: bold;">of</span><span style="color: #4f97d7;">()</span></code> stops operator chain and observable does not emit</h3>
+<p>
+Does not emit
+</p>
+<div class="org-src-container">
+
+<pre class="fragment appear"><code class=" typescript" data-line-numbers="|4">this.stringData$ = this.service.getStringFromBackend()
+  .pipe(
+    map =&gt; /* Some operation */,
+    catchError(() =&gt; of())
+  );
+</code></pre>
+</div>
+
+<p class="fragment appear">
+Emits
+</p>
+<div class="org-src-container">
+
+<pre class="fragment appear"><code class=" typescript" data-line-numbers="|4">this.stringData$ = this.service.getStringFromBackend()
+  .pipe(
+    map =&gt; /* Some operation */,
+    catchError(() =&gt; of(''))
+  );
+</code></pre>
+</div>
+</section>
+<section id="slide-orgb27bec7">
+<h3 id="orgb27bec7">shareReplay with async pipe</h3>
+</section>
+<section id="slide-org19d85b2">
+<h3 id="org19d85b2">uncaught error completes observable</h3>
+</section>
+<section id="slide-org8c335a2">
+<h3 id="org8c335a2">order of catchError operator matters, should be last in most cases</h3>
+</section>
+</section>
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@3.9.2/lib/js/head.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@3.9.2/js/reveal.js"></script>
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+
+controls: true,
+progress: true,
+history: false,
+center: true,
+slideNumber: 'c',
+rollingLinks: false,
+keyboard: true,
+mouseWheel: false,
+fragmentInURL: false,
+hashOneBasedIndex: false,
+pdfSeparateFragments: true,
+
+overview: true,
+margin: 0.02,
+minScale: 0.10,
+maxScale: 1.00,
+
+theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+transition: Reveal.getQueryHash().transition || 'fade', // see README of reveal.js for options
+transitionSpeed: 'default',
+
+// Optional libraries used to extend reveal.js
+dependencies: [
+ { src: 'https://cdn.jsdelivr.net/npm/reveal.js@3.9.2/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: 'https://cdn.jsdelivr.net/npm/reveal.js@3.9.2/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: 'https://cdn.jsdelivr.net/npm/reveal.js@3.9.2/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }]
+
+});
+</script>
+</body>
+</html>
