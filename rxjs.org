@@ -1,0 +1,131 @@
+#+TITLE: RxJS
+#+OPTIONS: num:nil toc:nil frag:t
+#+AUTHOR: Juuso Valkeejärvi
+#+REVEAL_THEME: night
+#+REVEAL_HLEVEL: 1
+#+REVEAL_TRANS: fade
+#+REVEAL_ROOT: https://cdn.jsdelivr.net/npm/reveal.js@3.9.2
+#+REVEAL_PLUGINS: (markdown highlight)
+#+REVEAL_DEFAULT_FRAG_STYLE: appear
+#+PROPERTY: header-args :exports code
+#+REVEAL_MARGIN: 0.02
+#+REVEAL_MIN_SCALE: 0.1
+#+REVEAL_MAX_SCALE: 1
+#+REVEAL_FRAGMENTINURL: t
+#+REVEAL_HIGHLIGHT_CSS: %r/lib/css/monokai.css
+* RxJS
+  #+ATTR_REVEAL: :frag (appear)
+  - library for reactive programming
+  - implementations for other languages exist (RxJava, Rx.NET...)
+  - uses observables instead of promises for async code
+  - comes with multiple operators
+* Major differences between observables and promises
+  #+ATTR_REVEAL: :frag (appear)
+- promises are eager, code is executed even before calling then
+- observables are lazy, code is executed just when it is subscribed
+- observables can be synchronous
+- observables can emit multiple values, promises just one
+* Subjects vs Observables
+  #+ATTR_REVEAL: :frag (appear)
+- subjects keep state of their observers
+- subject is both observer and observable
+- next can be explicitly called on subjects
+* Different kind of subjects
+** Subject
+** ReplaySubject
+   #+ATTR_REVEAL: :frag (appear)
+ - late subscribers get the latest value on subscription
+   #+ATTR_REVEAL: :frag (appear)
+   - word replay usually means that late subscribers get the value too, eg. ShareReplay
+** BehaviorSubject
+   #+ATTR_REVEAL: :frag (appear)
+ - like ReplaySubject but initial value must be given
+ - value property can be accessed synchronously
+   #+ATTR_REVEAL: :frag (appear)
+   #+BEGIN_SRC typescript
+     const data = new BehaviorSubject<string>('some string');
+     console.log(data.value);
+   #+END_SRC
+
+** AsyncSubject
+   - emits latest value when it completes
+   #+ATTR_REVEAL: :frag (appear)
+   #+ATTR_REVEAL: :code_attribs data-line-numbers="|1|6-9|10|3"
+   #+BEGIN_SRC typescript
+     const data = new AsyncSubject<string>();
+     data.subscribe(value => {
+       console.log(value); /* only 'ddd' is logged */
+     })
+
+     data.next('aaa');
+     data.next('bbb');
+     data.next('ccc');
+     data.next('ddd');
+     data.complete();
+   #+END_SRC
+* Common operators
+** map
+** filter
+** tap
+** switchMap
+** catchError
+** debounceTime
+** distintUntilChanged
+** shareReplay
+** finalize
+** startWith
+* Good practices
+  #+ATTR_REVEAL: :frag (appear)
+- never reassing observables
+- never nest subscriptions, use pipe operators instead
+- avoid explicit subscriptions in components, always use async pipe when possible
+- ensure that subscriptions are always unsubscribe
+  #+ATTR_REVEAL: :frag (appear)
+  - async pipe handles this by itself
+  - by using takeUntil and calling next for subject in ngOnDestroy
+  - storing subscription explicitly unsubscribing in ngOnDestroy
+** Refreshing value of shared observable
+   #+ATTR_REVEAL: :frag (appear)
+   #+ATTR_REVEAL: :code_attribs data-line-numbers="1-2|5-9|11-12"
+   #+begin_src typescript
+     private readonly data$: Observable<SomeType>;
+     private readonly refresh$: ReplaySubject<void> = new ReplaySubject();
+
+     public constructor() {
+       this.data$ = refresh$.pipe(
+         switchMap(/* do some request*/)
+         shareReplay({ refCount: true, bufferSize: 1})
+       );
+     }
+
+     private refreshData(): void {
+       this.refresh$.next();
+     }
+   #+end_src
+* Pitfalls
+** src_typescript{of()} stops operator chain and observable does not emit
+   Does not emit
+   #+ATTR_REVEAL: :frag t
+   #+ATTR_REVEAL: :code_attribs data-line-numbers="|4"
+   #+BEGIN_SRC typescript
+     this.stringData$ = this.service.getStringFromBackend()
+       .pipe(
+         map => /* Some operation */,
+         catchError(() => of())
+       );
+   #+END_SRC
+
+   #+ATTR_REVEAL: :frag t
+   Emits
+   #+ATTR_REVEAL: :frag t
+   #+ATTR_REVEAL: :code_attribs data-line-numbers="|4"
+   #+BEGIN_SRC typescript
+     this.stringData$ = this.service.getStringFromBackend()
+       .pipe(
+         map => /* Some operation */,
+         catchError(() => of(''))
+       );
+   #+END_SRC
+** shareReplay with async pipe
+** uncaught error completes observable
+** order of catchError operator matters, should be last in most cases
