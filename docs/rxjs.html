@@ -10,6 +10,8 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@3.9.2/css/reveal.css"/>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@3.9.2/css/theme/night.css" id="theme"/>
+
+<link rel="stylesheet" href="reveal-code.css"/>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@3.9.2/lib/css/monokai.css"/>
 
 <!-- If the query includes 'print-pdf', include the PDF print sheet -->
@@ -27,11 +29,11 @@
 <div class="reveal">
 <div class="slides">
 <section id="sec-title-slide">
-<h1 class="title">RxJS</h1><h2 class="author">Juuso Valkeejärvi</h2><p class="date">Created: 2020-03-03 ti 14:28</p>
+<h1 class="title">RxJS</h1><h2 class="author">Juuso Valkeejärvi</h2><p class="date">Created: 2020-03-03 ti 17:43</p>
 </section>
 <section>
-<section id="slide-orgfe79a1b">
-<h2 id="orgfe79a1b">RxJS</h2>
+<section id="slide-orgc6be73a">
+<h2 id="orgc6be73a">RxJS</h2>
 <ul>
 <li class="fragment appear">library for reactive programming</li>
 <li class="fragment appear">implementations for other languages exist (RxJava, Rx.NET&#x2026;)</li>
@@ -42,8 +44,8 @@
 </section>
 </section>
 <section>
-<section id="slide-org37af382">
-<h2 id="org37af382">Major differences between observables and promises</h2>
+<section id="slide-org4f306c8">
+<h2 id="org4f306c8">Major differences between observables and promises</h2>
 <ul>
 <li class="fragment appear">promises are eager, code is executed even before calling then</li>
 <li class="fragment appear">observables are lazy, code is executed just when it is subscribed</li>
@@ -54,8 +56,8 @@
 </section>
 </section>
 <section>
-<section id="slide-org89f90c6">
-<h2 id="org89f90c6">Subjects vs Observables</h2>
+<section id="slide-org1304054">
+<h2 id="org1304054">Subjects vs Observables</h2>
 <ul>
 <li class="fragment appear">subjects keep state of their observers</li>
 <li class="fragment appear">subject is both observer and observable</li>
@@ -65,16 +67,16 @@
 </section>
 </section>
 <section>
-<section id="slide-org3879284">
-<h2 id="org3879284">Different kind of subjects</h2>
-<div class="outline-text-2" id="text-org3879284">
+<section id="slide-org273c8e3">
+<h2 id="org273c8e3">Different kind of subjects</h2>
+<div class="outline-text-2" id="text-org273c8e3">
 </div>
 </section>
-<section id="slide-org0883b09">
-<h3 id="org0883b09">Subject</h3>
+<section id="slide-orgd21ffc2">
+<h3 id="orgd21ffc2">Subject</h3>
 </section>
-<section id="slide-orgcd101ca">
-<h3 id="orgcd101ca">ReplaySubject</h3>
+<section id="slide-orgdc32722">
+<h3 id="orgdc32722">ReplaySubject</h3>
 <ul>
 <li class="fragment appear">late subscribers get the latest value on subscription
 <ul>
@@ -84,8 +86,8 @@
 
 </ul>
 </section>
-<section id="slide-org1c7ccd1">
-<h3 id="org1c7ccd1">BehaviorSubject</h3>
+<section id="slide-org2eedb81">
+<h3 id="org2eedb81">BehaviorSubject</h3>
 <ul>
 <li class="fragment appear">like ReplaySubject but initial value must be given</li>
 <li class="fragment appear"><p>
@@ -101,8 +103,8 @@ console.log(data.value);
 </ul>
 
 </section>
-<section id="slide-orge8b0b45">
-<h3 id="orge8b0b45">AsyncSubject</h3>
+<section id="slide-org334f873">
+<h3 id="org334f873">AsyncSubject</h3>
 <ul>
 <li>emits latest value when it completes</li>
 
@@ -124,50 +126,249 @@ data.complete();
 </section>
 </section>
 <section>
-<section id="slide-org1552ba7">
-<h2 id="org1552ba7">Common operators</h2>
-<div class="outline-text-2" id="text-org1552ba7">
+<section id="slide-orgb5b869c">
+<h2 id="orgb5b869c">Common operators</h2>
+<div class="outline-text-2" id="text-orgb5b869c">
 </div>
 </section>
-<section id="slide-orgc7dfebc">
-<h3 id="orgc7dfebc">map</h3>
+<section id="slide-org47323ac">
+<h3 id="org47323ac">map</h3>
+<ul>
+<li class="fragment appear">alternates emitted value in some way</li>
+<li class="fragment appear"><p>
+not to be confused with Array.map
+</p>
+<div class="org-src-container">
+
+<pre class="fragment (appear)"><code class=" typescript" >const userIds$ = userClient.findByName('Pena').pipe(
+  /*
+    TIn -&gt; TOut, in this case: User[] -&gt; User[]
+    Function passed to map determines type of output Observable
+  */
+  map(users =&gt; users.filter(u =&gt; u.enabled))
+);
+</code></pre>
+</div></li>
+
+</ul>
 </section>
-<section id="slide-org68e4ef1">
-<h3 id="org68e4ef1">filter</h3>
+<section id="slide-org1876651">
+<h3 id="org1876651">filter</h3>
+<ul>
+<li><p>
+filter values which make observable to emit
+</p>
+<div class="org-src-container">
+
+<pre class="fragment (appear)"><code class=" html" >&lt;input [formControl]="searchString" /&gt;
+</code></pre>
+</div>
+<div class="org-src-container">
+
+<pre class="fragment (appear)"><code class=" typescript" data-line-numbers="|8">public readonly searchString = new FormControl('');
+public readonly searchResults$: Observable&lt;User&gt;;
+
+public constructor() {
+  this.searchResults$ = this.searchString.valueChanges
+    .pipe(
+      /* don't continue if value is empty string */
+      filter(value =&gt; value),
+      switchMap(/* Do backend request */)
+    );
+}
+</code></pre>
+</div></li>
+
+</ul>
 </section>
-<section id="slide-org633b37a">
-<h3 id="org633b37a">tap</h3>
+<section id="slide-orge22f269">
+<h3 id="orge22f269">tap</h3>
+<ul>
+<li class="fragment appear">used only for side-effects</li>
+<li class="fragment appear">has no effect on value</li>
+<li class="fragment appear"><p>
+avoid storing value in property/variable in tap
+</p>
+<div class="org-src-container">
+
+<pre class="fragment (appear)"><code class=" typescript" >const users$ = userClient.findByIds([1, 2, 3]).pipe(
+  tap(users =&gt; console.log('Found users:', users))
+);
+</code></pre>
+</div></li>
+
+</ul>
 </section>
-<section id="slide-org899a1a6">
-<h3 id="org899a1a6">switchMap</h3>
+<section id="slide-org30271ee">
+<h3 id="org30271ee">switchMap</h3>
+<ul>
+<li class="fragment appear">completes previous observable</li>
+<li class="fragment appear"><p>
+switch subscription to another observable
+</p>
+<div class="org-src-container">
+
+<pre class="fragment (appear)"><code class=" typescript" >const enabledUsers$: Observable&lt;User[]&gt; = userClient.getEnabledUserIds().pipe(
+  // TIn -&gt; TOut, in this case: number[] -&gt; User[]
+  switchMap(ids =&gt; userClient.findByIds(ids))
+);
+</code></pre>
+</div></li>
+
+</ul>
 </section>
-<section id="slide-org12b15c6">
-<h3 id="org12b15c6">catchError</h3>
+<section id="slide-orga980997">
+<h4 id="orga980997">Returning original value with switchMap</h4>
+<p>
+using forkJoin
+</p>
+<div class="org-src-container">
+
+<pre class="fragment (appear)"><code class=" typescript" data-line-numbers="|2,4">const data$ = getObservable().pipe(
+  switchMap(
+    ids =&gt; forkJoin(
+      userClient.findByIds(ids),
+      of(ids)
+    )
+  )
+);
+</code></pre>
+</div>
 </section>
-<section id="slide-org6a819a8">
-<h3 id="org6a819a8">debounceTime</h3>
+<section>
+<p>
+using resultSelector
+</p>
+<div class="org-src-container">
+
+<pre class="fragment (appear)"><code class=" typescript" data-line-numbers="|4">const data$ = getObservable().pipe(
+  switchMap(
+    ids =&gt; userClient.findByIds(ids),
+    (origValue, newValue) =&gt; [origValue, newValue]
+  )
+);
+</code></pre>
+</div>
 </section>
-<section id="slide-orgc60f9be">
-<h3 id="orgc60f9be">distintUntilChanged</h3>
+<section>
+<p>
+DON'T DO THIS
+</p>
+<div class="org-src-container">
+
+<pre class="fragment (appear)"><code class=" typescript" data-line-numbers="|1,5">let intermediate: string;
+const data$ = getObservable()
+  .pipe(
+    tap(value =&gt; {
+      intermediate = value;
+    }),
+    switchMap(ids =&gt; userClient.findByIds(ids))
+  )
+</code></pre>
+</div>
 </section>
-<section id="slide-org9e23213">
-<h3 id="org9e23213">shareReplay</h3>
+<section id="slide-org52fd0b6">
+<h3 id="org52fd0b6">catchError</h3>
+<ul>
+<li class="fragment appear">handle errors and allow observable to emit</li>
+<li class="fragment appear">should be used always when observable is subscribed with async pipe</li>
+<li class="fragment appear">must return a new observable or observable won't emit</li>
+
+</ul>
+<div class="org-src-container">
+
+<pre class="fragment (appear)"><code class=" typescript" >const gridData$: Observable&lt;User[]&gt; = userClient.getAll().pipe(
+  /* TIn -&gt; TOut, in this case User[] -&gt; User[] */
+  catchError(err =&gt; {
+    console.log('Failed to get data from api', err);
+    return of([]);
+  })
+);
+</code></pre>
+</div>
 </section>
-<section id="slide-org425cc1c">
-<h3 id="org425cc1c">finalize</h3>
+<section id="slide-orgd80525c">
+<h3 id="orgd80525c">debounceTime</h3>
+<ul>
+<li class="fragment appear">discard too frequent values</li>
+<li class="fragment appear"><p>
+should be used in observables that emit on user inputs (clicks, typing etc.)
+</p>
+<div class="org-src-container">
+
+<pre class="fragment (appear)"><code class=" html" >&lt;input [formControl]="searchString" /&gt;
+</code></pre>
+</div>
+<div class="org-src-container">
+
+<pre class="fragment (appear)"><code class=" typescript" data-line-numbers>public readonly searchString = new FormControl('');
+public readonly searchResults$: Observable&lt;User&gt;;
+
+public constructor() {
+  this.searchResults$ = this.searchString.valueChanges
+    .pipe(
+      debounceTime(300),
+      switchMap(/* Do backend request */)
+    );
+}
+</code></pre>
+</div></li>
+
+</ul>
 </section>
-<section id="slide-orgc9739fc">
-<h3 id="orgc9739fc">startWith</h3>
+<section id="slide-org2f23f52">
+<h3 id="org2f23f52">distintUntilChanged</h3>
+<ul>
+<li class="fragment appear">discard value if it has not changed</li>
+<li class="fragment appear"><p>
+<a href="https://www.learnrxjs.io/learn-rxjs/operators/filtering/distinctuntilkeychanged">distintUntilKeyChanged</a> suits better for non-primitive values
+</p>
+<div class="org-src-container">
+
+<pre class="fragment (appear)"><code class=" html" >&lt;input [formControl]="searchString" /&gt;
+</code></pre>
+</div>
+<div class="org-src-container">
+
+<pre class="fragment (appear)"><code class=" typescript" data-line-numbers="8">public readonly searchString = new FormControl('');
+public readonly searchResults$: Observable&lt;User&gt;;
+
+public constructor() {
+  this.searchResults$ = this.searchString.valueChanges
+    .pipe(
+      debounceTime(300),
+      distintUntilChanged(),
+      switchMap(/* Do backend request */)
+    );
+}
+</code></pre>
+</div></li>
+
+</ul>
+</section>
+<section id="slide-orgc84696c">
+<h3 id="orgc84696c">shareReplay</h3>
+<ul>
+<li>give same subscription to every subscriber</li>
+<li>allow late subscribers to get the latest value</li>
+
+</ul>
+</section>
+<section id="slide-orgf0c69f0">
+<h3 id="orgf0c69f0">finalize</h3>
+</section>
+<section id="slide-orgc28ea65">
+<h3 id="orgc28ea65">startWith</h3>
 </section>
 </section>
 <section>
-<section id="slide-org5f2b772">
-<h2 id="org5f2b772">Good practices</h2>
+<section id="slide-orgeecbc0a">
+<h2 id="orgeecbc0a">Good practices</h2>
 <ul>
 <li class="fragment appear">never reassing observables</li>
 <li class="fragment appear">never nest subscriptions, use pipe operators instead</li>
 <li class="fragment appear">avoid explicit subscriptions in components, always use async pipe when possible</li>
-<li class="fragment appear">ensure that subscriptions are always unsubscribe
+<li class="fragment appear">ensure that subscriptions are always unsubscribed
 <ul>
 <li class="fragment appear">async pipe handles this by itself</li>
 <li class="fragment appear">by using takeUntil and calling next for subject in ngOnDestroy</li>
@@ -177,8 +378,8 @@ data.complete();
 
 </ul>
 </section>
-<section id="slide-orgbb8aadf">
-<h3 id="orgbb8aadf">Refreshing value of shared observable</h3>
+<section id="slide-orgf541202">
+<h3 id="orgf541202">Refreshing value of shared observable</h3>
 <div class="org-src-container">
 
 <pre class="fragment (appear)"><code class=" typescript" data-line-numbers="1-2|5-9|11-12">private readonly data$: Observable&lt;SomeType&gt;;
@@ -199,19 +400,19 @@ private refreshData(): void {
 </section>
 </section>
 <section>
-<section id="slide-org7ae89ee">
-<h2 id="org7ae89ee">Pitfalls</h2>
-<div class="outline-text-2" id="text-org7ae89ee">
+<section id="slide-org4e7d178">
+<h2 id="org4e7d178">Pitfalls</h2>
+<div class="outline-text-2" id="text-org4e7d178">
 </div>
 </section>
-<section id="slide-org60fccdb">
-<h3 id="org60fccdb"><code class="src src-typescript"><span style="color: #4f97d7; font-weight: bold;">of</span><span style="color: #4f97d7;">()</span></code> stops operator chain and observable does not emit</h3>
+<section id="slide-orga4f3e97">
+<h3 id="orga4f3e97"><code class="src src-typescript"><span style="color: #4f97d7; font-weight: bold;">of</span><span style="color: #4f97d7;">()</span></code> with no parameters never emits</h3>
 <p>
 Does not emit
 </p>
 <div class="org-src-container">
 
-<pre class="fragment appear"><code class=" typescript" data-line-numbers="|4">this.stringData$ = this.service.getStringFromBackend()
+<pre class="fragment (appear)"><code class=" typescript" data-line-numbers="|4">this.stringData$ = this.service.getStringFromBackend()
   .pipe(
     map =&gt; /* Some operation */,
     catchError(() =&gt; of())
@@ -219,12 +420,12 @@ Does not emit
 </code></pre>
 </div>
 
-<p class="fragment appear">
+<p class="fragment (appear)">
 Emits
 </p>
 <div class="org-src-container">
 
-<pre class="fragment appear"><code class=" typescript" data-line-numbers="|4">this.stringData$ = this.service.getStringFromBackend()
+<pre class="fragment (appear)"><code class=" typescript" data-line-numbers="|4">this.stringData$ = this.service.getStringFromBackend()
   .pipe(
     map =&gt; /* Some operation */,
     catchError(() =&gt; of(''))
@@ -232,14 +433,18 @@ Emits
 </code></pre>
 </div>
 </section>
-<section id="slide-orgb27bec7">
-<h3 id="orgb27bec7">shareReplay with async pipe</h3>
+<section id="slide-orgb730cdf">
+<h3 id="orgb730cdf">shareReplay with async pipe</h3>
 </section>
-<section id="slide-org19d85b2">
-<h3 id="org19d85b2">uncaught error completes observable</h3>
+<section id="slide-org89a34da">
+<h3 id="org89a34da">uncaught error completes observable</h3>
 </section>
-<section id="slide-org8c335a2">
-<h3 id="org8c335a2">order of catchError operator matters, should be last in most cases</h3>
+<section id="slide-org93ad020">
+<h3 id="org93ad020">catchError placement</h3>
+<ul>
+<li>order of catchError operator matters, should be last in most cases</li>
+
+</ul>
 </section>
 </section>
 </div>
@@ -264,9 +469,8 @@ hashOneBasedIndex: false,
 pdfSeparateFragments: true,
 
 overview: true,
-margin: 0.02,
-minScale: 0.10,
-maxScale: 1.00,
+margin: 0.05,
+maxScale: 2.00,
 
 theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
 transition: Reveal.getQueryHash().transition || 'fade', // see README of reveal.js for options

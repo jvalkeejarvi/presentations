@@ -7,12 +7,11 @@
 #+REVEAL_ROOT: https://cdn.jsdelivr.net/npm/reveal.js@3.9.2
 #+REVEAL_PLUGINS: (markdown highlight)
 #+REVEAL_DEFAULT_FRAG_STYLE: appear
+#+REVEAL_MARGIN: 0.05
+#+REVEAL_MAX_SCALE: 2
 #+PROPERTY: header-args :exports code
-#+REVEAL_MARGIN: 0.02
-#+REVEAL_MIN_SCALE: 0.1
-#+REVEAL_MAX_SCALE: 1
-#+REVEAL_FRAGMENTINURL: t
 #+REVEAL_HIGHLIGHT_CSS: %r/lib/css/monokai.css
+#+REVEAL_EXTRA_CSS: reveal-code.css
 * RxJS
   #+ATTR_REVEAL: :frag (appear)
   - library for reactive programming
@@ -65,13 +64,165 @@
    #+END_SRC
 * Common operators
 ** map
+   #+ATTR_REVEAL: :frag (appear)
+ - alternates emitted value in some way
+ - not to be confused with Array.map
+   #+ATTR_REVEAL: :frag (appear)
+   #+begin_src typescript
+     const userIds$ = userClient.findByName('Pena').pipe(
+       /*
+         TIn -> TOut, in this case: User[] -> User[]
+         Function passed to map determines type of output Observable
+       ,*/
+       map(users => users.filter(u => u.enabled))
+     );
+   #+end_src
 ** filter
+   - filter values which make observable to emit
+     #+ATTR_REVEAL: :frag (appear)
+     #+begin_src html
+       <input [formControl]="searchString" />
+     #+end_src
+     #+ATTR_REVEAL: :frag (appear)
+     #+ATTR_REVEAL: :code_attribs data-line-numbers="|8"
+     #+begin_src typescript
+       public readonly searchString = new FormControl('');
+       public readonly searchResults$: Observable<User>;
+
+       public constructor() {
+         this.searchResults$ = this.searchString.valueChanges
+           .pipe(
+             /* don't continue if value is empty string */
+             filter(value => value),
+             switchMap(/* Do backend request */)
+           );
+       }
+     #+end_src
 ** tap
+   #+ATTR_REVEAL: :frag (appear)
+ - used only for side-effects
+ - has no effect on value
+ - avoid storing value in property/variable in tap
+   #+ATTR_REVEAL: :frag (appear)
+   #+begin_src typescript
+     const users$ = userClient.findByIds([1, 2, 3]).pipe(
+       tap(users => console.log('Found users:', users))
+     );
+   #+end_src
 ** switchMap
+   #+ATTR_REVEAL: :frag (appear)
+ - completes previous observable
+ - switch subscription to another observable
+   #+ATTR_REVEAL: :frag (appear)
+   #+begin_src typescript
+     const enabledUsers$: Observable<User[]> = userClient.getEnabledUserIds().pipe(
+       // TIn -> TOut, in this case: number[] -> User[]
+       switchMap(ids => userClient.findByIds(ids))
+     );
+   #+end_src
+*** Returning original value with switchMap
+    using forkJoin
+    #+ATTR_REVEAL: :frag (appear)
+    #+ATTR_REVEAL: :code_attribs data-line-numbers="|2,4"
+    #+begin_src typescript
+      const data$ = getObservable().pipe(
+        switchMap(
+          ids => forkJoin(
+            userClient.findByIds(ids),
+            of(ids)
+          )
+        )
+      );
+    #+end_src
+    #+REVEAL: split
+    using resultSelector
+    #+ATTR_REVEAL: :frag (appear)
+    #+ATTR_REVEAL: :code_attribs data-line-numbers="|4"
+    #+begin_src typescript
+      const data$ = getObservable().pipe(
+        switchMap(
+          ids => userClient.findByIds(ids),
+          (origValue, newValue) => [origValue, newValue]
+        )
+      );
+    #+end_src
+    #+REVEAL: split
+    DON'T DO THIS
+    #+ATTR_REVEAL: :frag (appear)
+    #+ATTR_REVEAL: :code_attribs data-line-numbers="|1,5"
+    #+begin_src typescript
+      let intermediate: string;
+      const data$ = getObservable()
+        .pipe(
+          tap(value => {
+            intermediate = value;
+          }),
+          switchMap(ids => userClient.findByIds(ids))
+        )
+    #+end_src
 ** catchError
+   #+ATTR_REVEAL: :frag (appear)
+   - handle errors and allow observable to emit
+   - should be used always when observable is subscribed with async pipe
+   - must return a new observable or observable won't emit
+   #+ATTR_REVEAL: :frag (appear)
+   #+begin_src typescript
+     const gridData$: Observable<User[]> = userClient.getAll().pipe(
+       /* TIn -> TOut, in this case User[] -> User[] */
+       catchError(err => {
+         console.log('Failed to get data from api', err);
+         return of([]);
+       })
+     );
+   #+end_src
 ** debounceTime
+   #+ATTR_REVEAL: :frag (appear)
+ - discard too frequent values
+ - should be used in observables that emit on user inputs (clicks, typing etc.)
+   #+ATTR_REVEAL: :frag (appear)
+   #+begin_src html
+     <input [formControl]="searchString" />
+   #+end_src
+   #+ATTR_REVEAL: :frag (appear)
+   #+ATTR_REVEAL: :code_attribs data-line-numbers
+   #+begin_src typescript
+     public readonly searchString = new FormControl('');
+     public readonly searchResults$: Observable<User>;
+
+     public constructor() {
+       this.searchResults$ = this.searchString.valueChanges
+         .pipe(
+           debounceTime(300),
+           switchMap(/* Do backend request */)
+         );
+     }
+   #+end_src
 ** distintUntilChanged
+   #+ATTR_REVEAL: :frag (appear)
+ - discard value if it has not changed
+ - [[https://www.learnrxjs.io/learn-rxjs/operators/filtering/distinctuntilkeychanged][distintUntilKeyChanged]] suits better for non-primitive values
+   #+ATTR_REVEAL: :frag (appear)
+   #+begin_src html
+     <input [formControl]="searchString" />
+   #+end_src
+   #+ATTR_REVEAL: :frag (appear)
+   #+ATTR_REVEAL: :code_attribs data-line-numbers="8"
+   #+begin_src typescript
+     public readonly searchString = new FormControl('');
+     public readonly searchResults$: Observable<User>;
+
+     public constructor() {
+       this.searchResults$ = this.searchString.valueChanges
+         .pipe(
+           debounceTime(300),
+           distintUntilChanged(),
+           switchMap(/* Do backend request */)
+         );
+     }
+   #+end_src
 ** shareReplay
+   - give same subscription to every subscriber
+   - allow late subscribers to get the latest value
 ** finalize
 ** startWith
 * Good practices
@@ -79,7 +230,7 @@
 - never reassing observables
 - never nest subscriptions, use pipe operators instead
 - avoid explicit subscriptions in components, always use async pipe when possible
-- ensure that subscriptions are always unsubscribe
+- ensure that subscriptions are always unsubscribed
   #+ATTR_REVEAL: :frag (appear)
   - async pipe handles this by itself
   - by using takeUntil and calling next for subject in ngOnDestroy
@@ -103,9 +254,9 @@
      }
    #+end_src
 * Pitfalls
-** src_typescript{of()} stops operator chain and observable does not emit
+** src_typescript{of()} with no parameters never emits
    Does not emit
-   #+ATTR_REVEAL: :frag t
+   #+ATTR_REVEAL: :frag (appear)
    #+ATTR_REVEAL: :code_attribs data-line-numbers="|4"
    #+BEGIN_SRC typescript
      this.stringData$ = this.service.getStringFromBackend()
@@ -115,9 +266,9 @@
        );
    #+END_SRC
 
-   #+ATTR_REVEAL: :frag t
+   #+ATTR_REVEAL: :frag (appear)
    Emits
-   #+ATTR_REVEAL: :frag t
+   #+ATTR_REVEAL: :frag (appear)
    #+ATTR_REVEAL: :code_attribs data-line-numbers="|4"
    #+BEGIN_SRC typescript
      this.stringData$ = this.service.getStringFromBackend()
@@ -128,4 +279,5 @@
    #+END_SRC
 ** shareReplay with async pipe
 ** uncaught error completes observable
-** order of catchError operator matters, should be last in most cases
+** catchError placement
+   - order of catchError operator matters, should be last in most cases
