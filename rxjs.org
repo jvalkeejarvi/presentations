@@ -422,7 +422,7 @@
     #+end_src
 *** Unsubscribe with takeUntil
     [[takeUntil][takeUntil]]
-** Refreshing value of shared observable
+** Refreshing value of (shared) observable
    #+ATTR_REVEAL: :frag (appear)
    #+ATTR_REVEAL: :code_attribs data-line-numbers="1-2|5-9|11-12"
    #+begin_src typescript
