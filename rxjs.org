@@ -1,7 +1,7 @@
 #+TITLE: RxJS
-#+OPTIONS: num:nil toc:nil frag:t
+#+OPTIONS: toc:nil num:nil reveal_history:t
 #+AUTHOR: Juuso Valkeejärvi
-#+REVEAL_THEME: night
+#+REVEAL_THEME: black
 #+REVEAL_HLEVEL: 1
 #+REVEAL_TRANS: fade
 #+REVEAL_ROOT: https://cdn.jsdelivr.net/npm/reveal.js@3.9.2
@@ -12,6 +12,7 @@
 #+PROPERTY: header-args :exports code
 #+REVEAL_HIGHLIGHT_CSS: %r/lib/css/monokai.css
 #+REVEAL_EXTRA_CSS: reveal-code.css
+# #+REVEAL_INIT_SCRIPT: history: true
 * RxJS
   #+ATTR_REVEAL: :frag (appear)
   - library for reactive programming
@@ -23,11 +24,11 @@
 - promises are eager, code is executed even before calling then
 - observables are lazy, code is executed just when it is subscribed
 - observables can be synchronous
-- observables can emit multiple values, promises just one
+- observables are steams, they can emit 0..n times, promises emit only once
 * Subjects vs Observables
   #+ATTR_REVEAL: :frag (appear)
+- subject is subtype of observable
 - subjects keep state of their observers
-- subject is both observer and observable
 - next can be explicitly called on subjects
 * Different kind of subjects
 ** Subject
@@ -35,7 +36,7 @@
    #+ATTR_REVEAL: :frag (appear)
  - late subscribers get the latest value on subscription
    #+ATTR_REVEAL: :frag (appear)
-   - word replay usually means that late subscribers get the value too, eg. ShareReplay
+   - word replay usually means that late subscribers get the value too, e.g. ShareReplay
 ** BehaviorSubject
    #+ATTR_REVEAL: :frag (appear)
  - like ReplaySubject but initial value must be given
@@ -45,9 +46,9 @@
      const data = new BehaviorSubject<string>('some string');
      console.log(data.value);
    #+END_SRC
-
 ** AsyncSubject
-   - emits latest value when it completes
+   #+ATTR_REVEAL: :frag (appear)
+ - emits latest value when it completes
    #+ATTR_REVEAL: :frag (appear)
    #+ATTR_REVEAL: :code_attribs data-line-numbers="|1|6-9|10|3"
    #+BEGIN_SRC typescript
@@ -62,7 +63,54 @@
      data.next('ddd');
      data.complete();
    #+END_SRC
-* Common operators
+* Non-pipeable operators
+** forkJoin
+   #+ATTR_REVEAL: :frag (appear)
+   - emits last value of each observable when they all have completed (like Promise.all)
+   - never emits if any of observables does not complete
+   - returns tuple of observables
+   #+ATTR_REVEAL: :frag (appear)
+   #+begin_src typescript
+     /* Returns Observable<[string, number, boolean]> */
+     forkJoin(
+       of('stringValue'),
+       of(333),
+       doSomeBackendRequestReturningBoolean()
+     )
+   #+end_src
+** combineLatest
+   #+ATTR_REVEAL: :frag (appear)
+   - emits first time when all observables have emitted
+   - after that emits whenever any of the observables emits
+   - works even when some observables complete
+   - handy when multiple user events must update emitted value independently
+   - return value is like with forkJoin
+   #+ATTR_REVEAL: :frag (appear)
+   #+begin_src typescript
+     combineLatest(
+       someUserEvent$, /* Does not complete */
+       otherUserEvent$, /* Does not complete */
+       doSomeBackendRequestReturningBoolean() /* Completes */
+     )
+   #+end_src
+** of
+   #+ATTR_REVEAL: :frag (appear)
+   - return given value as an observable
+   - is run synchronously
+   #+ATTR_REVEAL: :frag (appear)
+   #+begin_src typescript
+     of({ id: 3, name: 'nameValue' });
+   #+end_src
+   #+ATTR_REVEAL: :frag (appear)
+   #+begin_src typescript
+     /* FIRST is logged before SECOND */
+     of('asdf').subscribe(() => {
+       console.log('FIRST');
+     });
+     console.log('SECOND');
+   #+end_src
+
+* Pipeable operators
 ** map
    #+ATTR_REVEAL: :frag (appear)
  - alternates emitted value in some way
@@ -78,31 +126,32 @@
      );
    #+end_src
 ** filter
-   - filter values which make observable to emit
-     #+ATTR_REVEAL: :frag (appear)
-     #+begin_src html
-       <input [formControl]="searchString" />
-     #+end_src
-     #+ATTR_REVEAL: :frag (appear)
-     #+ATTR_REVEAL: :code_attribs data-line-numbers="|8"
-     #+begin_src typescript
-       public readonly searchString = new FormControl('');
-       public readonly searchResults$: Observable<User>;
+   #+ATTR_REVEAL: :frag (appear)
+ - filter values which make observable to emit
+ - not to be confused with Array.filter
+   #+ATTR_REVEAL: :frag (appear)
+   #+begin_src html
+     <input [formControl]="searchString" />
+   #+end_src
+   #+ATTR_REVEAL: :frag (appear)
+   #+ATTR_REVEAL: :code_attribs data-line-numbers="|8"
+   #+begin_src typescript
+     public readonly searchString = new FormControl('');
+     public readonly searchResults$: Observable<User>;
 
-       public constructor() {
-         this.searchResults$ = this.searchString.valueChanges
-           .pipe(
-             /* don't continue if value is empty string */
-             filter(value => value),
-             switchMap(/* Do backend request */)
-           );
-       }
-     #+end_src
+     public constructor() {
+       this.searchResults$ = this.searchString.valueChanges
+         .pipe(
+           /* don't continue if value is empty string */
+           filter(value => value),
+           switchMap(/* Do backend request */)
+         );
+     }
+   #+end_src
 ** tap
    #+ATTR_REVEAL: :frag (appear)
  - used only for side-effects
- - has no effect on value
- - avoid storing value in property/variable in tap
+ - has no effect on emitted value
    #+ATTR_REVEAL: :frag (appear)
    #+begin_src typescript
      const users$ = userClient.findByIds([1, 2, 3]).pipe(
@@ -120,10 +169,9 @@
        switchMap(ids => userClient.findByIds(ids))
      );
    #+end_src
-*** Returning original value with switchMap
-    using forkJoin
+*** Returning outer value with forkJoin
     #+ATTR_REVEAL: :frag (appear)
-    #+ATTR_REVEAL: :code_attribs data-line-numbers="|2,4"
+    #+ATTR_REVEAL: :code_attribs data-line-numbers="|2,5"
     #+begin_src typescript
       const data$ = getObservable().pipe(
         switchMap(
@@ -134,8 +182,7 @@
         )
       );
     #+end_src
-    #+REVEAL: split
-    using resultSelector
+*** Returning outer value with resultSelector
     #+ATTR_REVEAL: :frag (appear)
     #+ATTR_REVEAL: :code_attribs data-line-numbers="|4"
     #+begin_src typescript
@@ -147,7 +194,11 @@
       );
     #+end_src
     #+REVEAL: split
-    DON'T DO THIS
+    #+HTML_HEADLINE_CLASS: red
+*** *DON'T DO THIS*
+    :PROPERTIES:
+    :CUSTOM_ID: red
+    :END:
     #+ATTR_REVEAL: :frag (appear)
     #+ATTR_REVEAL: :code_attribs data-line-numbers="|1,5"
     #+begin_src typescript
@@ -162,9 +213,9 @@
     #+end_src
 ** catchError
    #+ATTR_REVEAL: :frag (appear)
-   - handle errors and allow observable to emit
-   - should be used always when observable is subscribed with async pipe
-   - must return a new observable or observable won't emit
+ - handle errors and allow observable to emit
+ - should be used always when observable is subscribed with async pipe and errors may occur
+ - must return a new observable or observable won't emit
    #+ATTR_REVEAL: :frag (appear)
    #+begin_src typescript
      const gridData$: Observable<User[]> = userClient.getAll().pipe(
@@ -179,12 +230,13 @@
    #+ATTR_REVEAL: :frag (appear)
  - discard too frequent values
  - should be used in observables that emit on user inputs (clicks, typing etc.)
+ - value is in milliseconds
    #+ATTR_REVEAL: :frag (appear)
    #+begin_src html
      <input [formControl]="searchString" />
    #+end_src
    #+ATTR_REVEAL: :frag (appear)
-   #+ATTR_REVEAL: :code_attribs data-line-numbers
+   #+ATTR_REVEAL: :code_attribs data-line-numbers="7"
    #+begin_src typescript
      public readonly searchString = new FormControl('');
      public readonly searchResults$: Observable<User>;
@@ -200,7 +252,7 @@
 ** distintUntilChanged
    #+ATTR_REVEAL: :frag (appear)
  - discard value if it has not changed
- - [[https://www.learnrxjs.io/learn-rxjs/operators/filtering/distinctuntilkeychanged][distintUntilKeyChanged]] suits better for non-primitive values
+ - consider using [[https://www.learnrxjs.io/learn-rxjs/operators/filtering/distinctuntilkeychanged][distintUntilKeyChanged]] for non-primitive values
    #+ATTR_REVEAL: :frag (appear)
    #+begin_src html
      <input [formControl]="searchString" />
@@ -220,21 +272,88 @@
          );
      }
    #+end_src
-** shareReplay
+** take
+   #+ATTR_REVEAL: :frag (appear)
+ - completes observable when it has emitted n values
+   #+ATTR_REVEAL: :frag (appear)
+   #+ATTR_REVEAL: :code_attribs data-line-numbers="|6"
+   #+begin_src typescript
+     combineLatest(
+       someUserEvent$,
+       otherUserEvent$,
+       doSomeBackendRequestReturningBoolean()
+     ).pipe(
+       take(1)
+     );
+   #+end_src
+** takeUntil
+   #+ATTR_REVEAL: :frag (appear)
+ - completes observable when given observable emits
+   #+ATTR_REVEAL: :frag (appear)
+   #+ATTR_REVEAL: :code_attribs data-line-numbers="|1|13-15|9"
+   #+begin_src typescript
+     const destroy$ = new Subject<void>();
+
+     public constructor() {
+       combineLatest(
+         someUserEvent$,
+         otherUserEvent$,
+         doSomeBackendRequestReturningBoolean()
+       ).pipe(
+         takeUntil(destroy$)
+       );
+     }
+
+     public ngOnDestroy(): void {
+       this.destroy$.next();
+     }
+   #+end_src
+** TODO shareReplay
    - give same subscription to every subscriber
    - allow late subscribers to get the latest value
 ** finalize
+- do something when observable completes
+   #+ATTR_REVEAL: :code_attribs data-line-numbers="|7-9"
+   #+begin_src typescript
+     public constructor() {
+       combineLatest(
+         someUserEvent$,
+         otherUserEvent$,
+         doSomeBackendRequestReturningBoolean()
+       ).pipe(
+         finalize(() => {
+           console.log('COMBINELATEST HAS COMPLETED')
+         })
+       );
+     }
+   #+end_src
 ** startWith
+- emit given value as first
+- useful e.g. as initial value of formControl valueChanges observable
+   #+ATTR_REVEAL: :code_attribs data-line-numbers="|2-3"
+   #+begin_src typescript
+     combineLatest(
+       someUserEvent$.pipe(startWith(5)),
+       otherUserEvent$.pipe(startWith('asdf')),
+       doSomeBackendRequestReturningBoolean()
+     )
+   #+end_src
 * Good practices
   #+ATTR_REVEAL: :frag (appear)
 - never reassing observables
-- never nest subscriptions, use pipe operators instead
+- never nest subscriptions, use operators instead
 - avoid explicit subscriptions in components, always use async pipe when possible
-- ensure that subscriptions are always unsubscribed
+- ensure that subscriptions are always unsubscribed (even with completing observables)
+- end observable property names with =$=
+** Unsubscribing
   #+ATTR_REVEAL: :frag (appear)
-  - async pipe handles this by itself
-  - by using takeUntil and calling next for subject in ngOnDestroy
-  - storing subscription explicitly unsubscribing in ngOnDestroy
+  - unsubscribing cancels ongoing http request(s)
+  - async pipe handles unsubscribing by itself
+  - using takeUntil
+  - storing subscription explicitly unsubscribing
+*** TODO Explicit unsubscribe
+*** Unsubscribe with takeUntil
+    [[takeUntil][takeUntil]]
 ** Refreshing value of shared observable
    #+ATTR_REVEAL: :frag (appear)
    #+ATTR_REVEAL: :code_attribs data-line-numbers="1-2|5-9|11-12"
@@ -255,9 +374,10 @@
    #+end_src
 * Pitfalls
 ** src_typescript{of()} with no parameters never emits
+   #+ATTR_REVEAL: :frag (appear)
    Does not emit
    #+ATTR_REVEAL: :frag (appear)
-   #+ATTR_REVEAL: :code_attribs data-line-numbers="|4"
+   #+ATTR_REVEAL: :code_attribs data-line-numbers="4"
    #+BEGIN_SRC typescript
      this.stringData$ = this.service.getStringFromBackend()
        .pipe(
@@ -269,7 +389,7 @@
    #+ATTR_REVEAL: :frag (appear)
    Emits
    #+ATTR_REVEAL: :frag (appear)
-   #+ATTR_REVEAL: :code_attribs data-line-numbers="|4"
+   #+ATTR_REVEAL: :code_attribs data-line-numbers="4"
    #+BEGIN_SRC typescript
      this.stringData$ = this.service.getStringFromBackend()
        .pipe(
@@ -277,7 +397,7 @@
          catchError(() => of(''))
        );
    #+END_SRC
-** shareReplay with async pipe
-** uncaught error completes observable
-** catchError placement
+** TODO shareReplay with async pipe
+** TODO uncaught error completes observable
+** TODO catchError placement
    - order of catchError operator matters, should be last in most cases
