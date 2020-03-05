@@ -106,7 +106,7 @@
    #+ATTR_REVEAL: :frag (appear)
    - emits last value of each observable when they all have completed (like Promise.all)
    - never emits if any of observables does not complete
-   - returns tuple of observables
+   - returns observable with tuple of values
    #+ATTR_REVEAL: :frag (appear)
    #+begin_src typescript
      /* Returns Observable<[string, number, boolean]> */
