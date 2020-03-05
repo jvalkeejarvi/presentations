@@ -427,7 +427,7 @@
    #+ATTR_REVEAL: :code_attribs data-line-numbers="1-2|5-9|11-13"
    #+begin_src typescript
      private readonly data$: Observable<SomeType>;
-     private readonly refresh$ = new Subject();
+     private readonly refresh$ = new ReplaySubject();
 
      public constructor() {
        this.data$ = refresh$.pipe(
