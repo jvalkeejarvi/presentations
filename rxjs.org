@@ -32,7 +32,9 @@
   #+ATTR_REVEAL: :frag (appear)
 - subject is subtype of observable
 - subjects keep state of their observers
-- next can be explicitly called on subjects
+- next value can be explicitly emitted with subjects
+- subjects are useful in services that must emit events
+- consider exposing subjects as observables in services to prevent calling next outside of service
 * Different kind of subjects
 ** Subject
    #+ATTR_REVEAL: :frag (appear)
@@ -183,7 +185,7 @@
 ** switchMap
    #+ATTR_REVEAL: :frag (appear)
  - completes previous observable
- - switch subscription to another observable
+ - switch subscription to new observable
    #+ATTR_REVEAL: :frag (appear)
    #+begin_src typescript
      const enabledUsers$: Observable<User[]> = userClient.getEnabledUserIds().pipe(

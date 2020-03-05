@@ -32,8 +32,8 @@
 <h1>RxJS</h1><h3>Juuso Valkeejärvi</h3><p>(Thanks to Sipi for some code examples)</p>
 </section>
 <section>
-<section id="slide-org6a7805e">
-<h2 id="org6a7805e">RxJS</h2>
+<section id="slide-orgf9fc145">
+<h2 id="orgf9fc145">RxJS</h2>
 <ul>
 <li class="fragment appear">library for reactive programming</li>
 <li class="fragment appear">implementations for other languages exist (RxJava, Rx.NET&#x2026;)</li>
@@ -44,8 +44,8 @@
 </section>
 </section>
 <section>
-<section id="slide-org7a942b5">
-<h2 id="org7a942b5">Major differences between observables and promises</h2>
+<section id="slide-orgc973712">
+<h2 id="orgc973712">Major differences between observables and promises</h2>
 <ul>
 <li class="fragment appear">promises are eager, code is executed even before calling then</li>
 <li class="fragment appear">observables are lazy, code is executed just when it is subscribed</li>
@@ -56,24 +56,26 @@
 </section>
 </section>
 <section>
-<section id="slide-org4930455">
-<h2 id="org4930455">Subjects vs Observables</h2>
+<section id="slide-orgd44fb69">
+<h2 id="orgd44fb69">Subjects vs Observables</h2>
 <ul>
 <li class="fragment appear">subject is subtype of observable</li>
 <li class="fragment appear">subjects keep state of their observers</li>
-<li class="fragment appear">next can be explicitly called on subjects</li>
+<li class="fragment appear">next value can be explicitly emitted with subjects</li>
+<li class="fragment appear">subjects are useful in services that must emit events</li>
+<li class="fragment appear">consider exposing subjects as observables in services to prevent calling next outside of service</li>
 
 </ul>
 </section>
 </section>
 <section>
-<section id="slide-orgbc08e66">
-<h2 id="orgbc08e66">Different kind of subjects</h2>
-<div class="outline-text-2" id="text-orgbc08e66">
+<section id="slide-org3417494">
+<h2 id="org3417494">Different kind of subjects</h2>
+<div class="outline-text-2" id="text-org3417494">
 </div>
 </section>
-<section id="slide-orgb48fb7e">
-<h3 id="orgb48fb7e">Subject</h3>
+<section id="slide-orgd9d0f5b">
+<h3 id="orgd9d0f5b">Subject</h3>
 <ul>
 <li class="fragment appear">cannot have initial value</li>
 <li class="fragment appear"><p>
@@ -97,8 +99,8 @@ public onClick() {
 
 </ul>
 </section>
-<section id="slide-org4ec4318">
-<h3 id="org4ec4318">ReplaySubject</h3>
+<section id="slide-orgd42fba3">
+<h3 id="orgd42fba3">ReplaySubject</h3>
 <ul>
 <li class="fragment appear">late subscribers get the latest value on subscription
 <ul>
@@ -108,8 +110,8 @@ public onClick() {
 
 </ul>
 </section>
-<section id="slide-org178cfff">
-<h3 id="org178cfff">BehaviorSubject</h3>
+<section id="slide-orgfe5c0f5">
+<h3 id="orgfe5c0f5">BehaviorSubject</h3>
 <ul>
 <li class="fragment appear">like ReplaySubject but initial value must be given</li>
 <li class="fragment appear"><p>
@@ -124,8 +126,8 @@ console.log(data.value);
 
 </ul>
 </section>
-<section id="slide-org3338513">
-<h3 id="org3338513">AsyncSubject</h3>
+<section id="slide-orga90ba99">
+<h3 id="orga90ba99">AsyncSubject</h3>
 <ul>
 <li class="fragment appear"><p>
 emits latest value when it completes
@@ -149,13 +151,13 @@ data.complete();
 </section>
 </section>
 <section>
-<section id="slide-orgcfd7970">
-<h2 id="orgcfd7970">Creation operators</h2>
-<div class="outline-text-2" id="text-orgcfd7970">
+<section id="slide-org6707702">
+<h2 id="org6707702">Creation operators</h2>
+<div class="outline-text-2" id="text-org6707702">
 </div>
 </section>
-<section id="slide-org0a2d25f">
-<h3 id="org0a2d25f">of</h3>
+<section id="slide-org2af90eb">
+<h3 id="org2af90eb">of</h3>
 <ul>
 <li class="fragment appear">return given value as an observable</li>
 <li class="fragment appear">is run synchronously</li>
@@ -177,8 +179,8 @@ console.log('SECOND');
 </div>
 
 </section>
-<section id="slide-orgccef8f5">
-<h3 id="orgccef8f5">forkJoin</h3>
+<section id="slide-org6781b6c">
+<h3 id="org6781b6c">forkJoin</h3>
 <ul>
 <li class="fragment appear">emits last value of each observable when they all have completed (like Promise.all)</li>
 <li class="fragment appear">never emits if any of observables does not complete</li>
@@ -196,8 +198,8 @@ forkJoin(
 </code></pre>
 </div>
 </section>
-<section id="slide-org873b6b7">
-<h3 id="org873b6b7">combineLatest</h3>
+<section id="slide-org45f97f4">
+<h3 id="org45f97f4">combineLatest</h3>
 <ul>
 <li class="fragment appear">emits first time when all observables have emitted</li>
 <li class="fragment appear">after that emits whenever any of the observables emits</li>
@@ -218,13 +220,13 @@ forkJoin(
 </section>
 </section>
 <section>
-<section id="slide-org98747c7">
-<h2 id="org98747c7">Pipeable operators</h2>
-<div class="outline-text-2" id="text-org98747c7">
+<section id="slide-org3435604">
+<h2 id="org3435604">Pipeable operators</h2>
+<div class="outline-text-2" id="text-org3435604">
 </div>
 </section>
-<section id="slide-orga386cae">
-<h3 id="orga386cae">map</h3>
+<section id="slide-org79a7a32">
+<h3 id="org79a7a32">map</h3>
 <ul>
 <li class="fragment appear">alternates emitted value in some way</li>
 <li class="fragment appear"><p>
@@ -244,8 +246,8 @@ not to be confused with Array.map
 
 </ul>
 </section>
-<section id="slide-org2829657">
-<h3 id="org2829657">filter</h3>
+<section id="slide-org69954e0">
+<h3 id="org69954e0">filter</h3>
 <ul>
 <li class="fragment appear">only values that pass given condition are emitted</li>
 <li class="fragment appear"><p>
@@ -274,8 +276,8 @@ public constructor() {
 
 </ul>
 </section>
-<section id="slide-orge9b277a">
-<h3 id="orge9b277a">tap</h3>
+<section id="slide-org95c1fb1">
+<h3 id="org95c1fb1">tap</h3>
 <ul>
 <li class="fragment appear">used only for side-effects</li>
 <li class="fragment appear"><p>
@@ -291,12 +293,12 @@ has no effect on emitted value
 
 </ul>
 </section>
-<section id="slide-orge121d72">
-<h3 id="orge121d72">switchMap</h3>
+<section id="slide-orgdb5531a">
+<h3 id="orgdb5531a">switchMap</h3>
 <ul>
 <li class="fragment appear">completes previous observable</li>
 <li class="fragment appear"><p>
-switch subscription to another observable
+switch subscription to new observable
 </p>
 <div class="org-src-container">
 
@@ -309,8 +311,8 @@ switch subscription to another observable
 
 </ul>
 </section>
-<section id="slide-orgd8a9e65">
-<h4 id="orgd8a9e65">Returning outer value with forkJoin</h4>
+<section id="slide-orgbf0bd87">
+<h4 id="orgbf0bd87">Returning outer value with forkJoin</h4>
 <div class="org-src-container">
 
 <pre class="fragment (appear)"><code class=" typescript" data-line-numbers="|2,5">const data$ = getObservable().pipe(
@@ -324,8 +326,8 @@ switch subscription to another observable
 </code></pre>
 </div>
 </section>
-<section id="slide-org8a191fb">
-<h4 id="org8a191fb">Returning outer value with resultSelector</h4>
+<section id="slide-org601b906">
+<h4 id="org601b906">Returning outer value with resultSelector</h4>
 <div class="org-src-container">
 
 <pre class="fragment (appear)"><code class=" typescript" data-line-numbers="|4">const data$ = getObservable().pipe(
@@ -357,8 +359,8 @@ const data$ = getObservable()
 
 </ul>
 </section>
-<section id="slide-orgdd1ed21">
-<h3 id="orgdd1ed21">catchError</h3>
+<section id="slide-org468de96">
+<h3 id="org468de96">catchError</h3>
 <ul>
 <li class="fragment appear">handle errors and allow observable to emit</li>
 <li class="fragment appear">should be used always when observable is subscribed with async pipe and errors may occur</li>
@@ -379,8 +381,8 @@ must return a new observable or observable won't emit
 
 </ul>
 </section>
-<section id="slide-orgf4bc326">
-<h3 id="orgf4bc326">debounceTime</h3>
+<section id="slide-org0384099">
+<h3 id="org0384099">debounceTime</h3>
 <ul>
 <li class="fragment appear">discard too frequent values</li>
 <li class="fragment appear">should be used in observables that emit on user inputs (clicks, typing etc.)</li>
@@ -409,8 +411,8 @@ public constructor() {
 
 </ul>
 </section>
-<section id="slide-org3c39526">
-<h3 id="org3c39526">distinctUntilChanged</h3>
+<section id="slide-orgc2be1bf">
+<h3 id="orgc2be1bf">distinctUntilChanged</h3>
 <ul>
 <li class="fragment appear">discard value if it has not changed</li>
 <li class="fragment appear"><p>
@@ -440,8 +442,8 @@ public constructor() {
 
 </ul>
 </section>
-<section id="slide-orgf4d8af5">
-<h3 id="orgf4d8af5">take</h3>
+<section id="slide-org9cd4e17">
+<h3 id="org9cd4e17">take</h3>
 <ul>
 <li class="fragment appear"><p>
 completes observable when it has emitted n values
@@ -464,8 +466,8 @@ combineLatest(
 
 </ul>
 </section>
-<section id="slide-org81198dc">
-<h3 id="org81198dc">takeUntil</h3>
+<section id="slide-org2274add">
+<h3 id="org2274add">takeUntil</h3>
 <ul>
 <li class="fragment appear"><p>
 completes observable when given observable emits
@@ -491,8 +493,8 @@ public ngOnDestroy(): void {
 
 </ul>
 </section>
-<section id="slide-org204691f">
-<h3 id="org204691f">shareReplay</h3>
+<section id="slide-orgfff5a99">
+<h3 id="orgfff5a99">shareReplay</h3>
 <ul>
 <li class="fragment appear">share emitted value to multiple subscribers</li>
 <li class="fragment appear">give same subscription to every subscriber</li>
@@ -516,8 +518,8 @@ public constructor() {
 </code></pre>
 </div>
 </section>
-<section id="slide-org871a978">
-<h3 id="org871a978">finalize</h3>
+<section id="slide-orgde5e968">
+<h3 id="orgde5e968">finalize</h3>
 <ul>
 <li class="fragment appear"><p>
 do something when observable completes
@@ -540,8 +542,8 @@ do something when observable completes
 
 </ul>
 </section>
-<section id="slide-org62b7673">
-<h3 id="org62b7673">startWith</h3>
+<section id="slide-orgd469471">
+<h3 id="orgd469471">startWith</h3>
 <ul>
 <li class="fragment appear">emit given value as first</li>
 <li class="fragment appear">useful e.g. as initial value of formControl valueChanges observable</li>
@@ -559,8 +561,8 @@ do something when observable completes
 </section>
 </section>
 <section>
-<section id="slide-org757b66c">
-<h2 id="org757b66c">Good practices</h2>
+<section id="slide-org87cde3c">
+<h2 id="org87cde3c">Good practices</h2>
 <ul>
 <li class="fragment appear">never reassing observables</li>
 <li class="fragment appear">never nest subscriptions, use operators instead</li>
@@ -570,8 +572,8 @@ do something when observable completes
 
 </ul>
 </section>
-<section id="slide-orgb286f46">
-<h3 id="orgb286f46">Unsubscribing</h3>
+<section id="slide-orgb17898a">
+<h3 id="orgb17898a">Unsubscribing</h3>
 <ul>
 <li class="fragment appear">unsubscribing cancels ongoing http request(s)</li>
 <li class="fragment appear">ways of unsubscribing</li>
@@ -584,8 +586,8 @@ do something when observable completes
 
 </ul>
 </section>
-<section id="slide-orgd504ffd">
-<h4 id="orgd504ffd">Explicit unsubscribe</h4>
+<section id="slide-org7aa6bc4">
+<h4 id="org7aa6bc4">Explicit unsubscribe</h4>
 <div class="org-src-container">
 
 <pre><code class=" typescript" data-line-numbers="|1|6-8|12">private subscription: Subscription;
@@ -604,14 +606,14 @@ public ngOnDestroy(): void {
 </code></pre>
 </div>
 </section>
-<section id="slide-orgbebcbd0">
-<h4 id="orgbebcbd0">Unsubscribe with takeUntil</h4>
+<section id="slide-org6111a2c">
+<h4 id="org6111a2c">Unsubscribe with takeUntil</h4>
 <p class="backwardlink">
-<a href="#/slide-org81198dc" class="backwardlink">takeUntil</a>
+<a href="#/slide-org2274add" class="backwardlink">takeUntil</a>
 </p>
 </section>
-<section id="slide-orgea49465">
-<h3 id="orgea49465">Refreshing value of (shared) observable</h3>
+<section id="slide-org1eb406e">
+<h3 id="org1eb406e">Refreshing value of (shared) observable</h3>
 <div class="org-src-container">
 
 <pre class="fragment (appear)"><code class=" typescript" data-line-numbers="1-2|5-9|11-13">private readonly data$: Observable&lt;SomeType&gt;;
@@ -632,13 +634,13 @@ private refreshData(): void {
 </section>
 </section>
 <section>
-<section id="slide-org85d9cb8">
-<h2 id="org85d9cb8">Pitfalls</h2>
-<div class="outline-text-2" id="text-org85d9cb8">
+<section id="slide-org668fed3">
+<h2 id="org668fed3">Pitfalls</h2>
+<div class="outline-text-2" id="text-org668fed3">
 </div>
 </section>
-<section id="slide-orgace91b9">
-<h3 id="orgace91b9"><code class="src src-typescript"><span style="color: #4f97d7; font-weight: bold;">of</span><span style="color: #4f97d7;">()</span></code> with no parameters never emits</h3>
+<section id="slide-orge32ba22">
+<h3 id="orge32ba22"><code class="src src-typescript"><span style="color: #4f97d7; font-weight: bold;">of</span><span style="color: #4f97d7;">()</span></code> with no parameters never emits</h3>
 <p class="fragment (appear)">
 Does not emit
 </p>
@@ -665,8 +667,8 @@ Emits
 </code></pre>
 </div>
 </section>
-<section id="slide-org7032244">
-<h3 id="org7032244">shareReplay placement</h3>
+<section id="slide-org1ec74db">
+<h3 id="org1ec74db">shareReplay placement</h3>
 <div class="org-src-container">
 
 <pre class="fragment (appear)"><code class=" typescript" data-line-numbers="|2|5|3">this.data$ = refresh$.pipe(
@@ -678,16 +680,16 @@ Emits
 </code></pre>
 </div>
 </section>
-<section id="slide-org38705cb">
-<h3 id="org38705cb">shareReplay in services</h3>
+<section id="slide-org97ab733">
+<h3 id="org97ab733">shareReplay in services</h3>
 <ul>
 <li class="fragment appear">it is not recommended to use refCount: true option</li>
 <li class="fragment appear">otherwise observable chain will start from beginning if observer amount drops to zero</li>
 
 </ul>
 </section>
-<section id="slide-org1f70578">
-<h3 id="org1f70578">uncaught error completes observable</h3>
+<section id="slide-org84d2657">
+<h3 id="org84d2657">uncaught error completes observable</h3>
 <div class="org-src-container">
 
 <pre class="fragment (appear)"><code class=" typescript" >combineLatest(
@@ -699,8 +701,8 @@ Emits
 </code></pre>
 </div>
 </section>
-<section id="slide-orgaa1691f">
-<h3 id="orgaa1691f">catchError placement</h3>
+<section id="slide-orgd8c63c2">
+<h3 id="orgd8c63c2">catchError placement</h3>
 <ul>
 <li class="fragment appear">order of catchError operator matters, should be last in most cases</li>
 
