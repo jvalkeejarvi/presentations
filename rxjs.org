@@ -137,6 +137,7 @@
  - alternates emitted value in some way
  - not to be confused with Array.map
    #+ATTR_REVEAL: :frag (appear)
+   #+ATTR_REVEAL: :code_attribs data-line-numbers="|6"
    #+begin_src typescript
      const userIds$ = userClient.findByName('Pena').pipe(
        /*
@@ -232,7 +233,7 @@
         )
     #+end_src
     #+ATTR_REVEAL: :frag (appear)
-    - intermediate variables make code more difficult to understand
+    - intermediate variables make code more difficult to maintain
     - avoid side-effects in observables
 ** catchError
    #+ATTR_REVEAL: :frag (appear)
@@ -281,7 +282,7 @@
      <input [formControl]="searchString" />
    #+end_src
    #+ATTR_REVEAL: :frag (appear)
-   #+ATTR_REVEAL: :code_attribs data-line-numbers="8"
+   #+ATTR_REVEAL: :code_attribs data-line-numbers="9"
    #+begin_src typescript
      public readonly searchString = new FormControl('');
      public readonly searchResults$: Observable<User>;
@@ -318,14 +319,13 @@
    #+ATTR_REVEAL: :frag (appear)
  - completes observable when given observable emits
    #+ATTR_REVEAL: :frag (appear)
-   #+ATTR_REVEAL: :code_attribs data-line-numbers="|1|13-15|9"
+   #+ATTR_REVEAL: :code_attribs data-line-numbers="|1|12-14|8"
    #+begin_src typescript
      const destroy$ = new Subject<void>();
 
      public constructor() {
        combineLatest(
          someUserEvent$,
-         otherUserEvent$,
          doSomeBackendRequestReturningBoolean()
        ).pipe(
          takeUntil(destroy$)
@@ -342,7 +342,7 @@
     - give same subscription to every subscriber
     - allow late subscribers to get the latest value
    #+ATTR_REVEAL: :frag (appear)
-   #+ATTR_REVEAL: :code_attribs data-line-numbers="|11"
+   #+ATTR_REVEAL: :code_attribs data-line-numbers="|10"
    #+begin_src typescript
      private readonly data$: Observable<string[]>;
 
@@ -424,7 +424,7 @@
     [[takeUntil][takeUntil]]
 ** Refreshing value of (shared) observable
    #+ATTR_REVEAL: :frag (appear)
-   #+ATTR_REVEAL: :code_attribs data-line-numbers="1-2|5-9|11-12"
+   #+ATTR_REVEAL: :code_attribs data-line-numbers="1-2|5-9|11-13"
    #+begin_src typescript
      private readonly data$: Observable<SomeType>;
      private readonly refresh$ = new Subject();
