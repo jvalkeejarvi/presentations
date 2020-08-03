@@ -1,0 +1,174 @@
+#+TITLE: Angular reactive forms
+#+LINK: sourcepath ~/git/enerkey2/
+#+OPTIONS: num:nil toc:nil frag:t
+#+AUTHOR: Juuso Valkeejärvi
+#+REVEAL_THEME: night
+#+REVEAL_HLEVEL: 1
+#+REVEAL_TRANS: fade
+#+REVEAL_ROOT: https://cdn.jsdelivr.net/reveal.js/3.0.0/
+#+PROPERTY: header-args :exports code
+#+REVEAL_PLUGINS: (markdown)
+* Reactive forms
+  #+ATTR_REVEAL: :frag (appear)
+- allow (almost) all form related logic to be moved from template to class
+- make testing possible and easier
+- forms consist of formGroups, formControls and formArrays
+** examples
+*** simple formGroup usage
+    #+ATTR_REVEAL: :frag (appear)
+    #+begin_src typescript
+      export class SomeComponent {
+        public form = new FormGroup({
+          name: new FormControl(null, [Validators.required, Validators.minLength(2)]),
+          age: new FormControl(null, [Validators.required Validators.min(18)]),
+          : new FormControl()
+        });
+
+        public savePerson() {
+          // Do a request
+        }
+      }
+    #+end_src
+    #+ATTR_REVEAL: :frag (appear)
+    #+begin_src html
+      <form
+        [formGroup]="form"
+        (ngSubmit)="savePerson()"
+      >
+        <label>
+          Name:
+          <input formControlName="name" />
+        </label>
+        <label>
+          Age:
+          <input formControlName="age" />
+        </label>
+        <button type="submit">Sabe</button>
+      </form>
+    #+end_src
+* Custom formControls with ControlValueAccessor
+*
+* Pipes
+  #+ATTR_REVEAL: :frag (appear)
+- transform data
+- can be chained
+- can take arguments
+- can be used as providers (services)
+- can have providers as dependencies
+- use number pipe ALWAYS when numbers are displayed!
+  #+ATTR_REVEAL: :frag (appear)
+  - kendo components handle formatting itself
+** examples
+*** quantityName pipe
+    #+ATTR_REVEAL: :frag (appear)
+    #+BEGIN_SRC typescript
+      import { Pipe, PipeTransform } from '@angular/core';
+      import { QuantityService } from '../services/quantity.service';
+
+      @Pipe({
+        name: 'quantityName'
+      })
+      export class QuantityNamePipe implements PipeTransform {
+
+        public constructor(private quantityService: QuantityService) {
+        }
+
+        public transform(value: number): string {
+          if (!value) {
+            return '';
+          }
+          return this.quantityService.getQuantityNameForId(value);
+        }
+      }
+    #+END_SRC
+    #+ATTR_REVEAL: :frag (appear)
+    #+BEGIN_SRC html
+      {{ meter.quantityId | quantityName }}
+    #+END_SRC
+*** todate pipe
+    [[sourcepath:/src/app/shared/pipes/to-date.pipe.ts][to-date.pipe.ts]]
+*** chaining pipes
+    #+BEGIN_SRC html
+      <span>
+        {{ alarm.inspectionPeriodBeginDate | todate | date:'short' }}
+      </span>
+    #+END_SRC
+*** advanced example
+    [[https://codeburst.io/angular-bad-practices-eab0e594ce92][codeburst example]]
+* Async pipe
+  #+ATTR_REVEAL: :frag (appear)
+- automatically handles unsubscribing as long as there are not subsciptions in component class
+- forces to handle everything with RxJS pipe operators
+- consider making a child component if async pipe is used multiple times for same observable
+- errors must be handled with catchError operator
+** examples
+*** data binding with async pipe
+    #+BEGIN_SRC html
+      [kendoGridBinding]="meterHistory$ | async"
+    #+END_SRC
+    #+ATTR_REVEAL: :frag (appear)
+    #+BEGIN_SRC typescript
+      public readonly meterHistory$: Observable<MeterHistoryEntry[]>;
+      public readonly refreshHistory$: ReplaySubject<void> = new ReplaySubject();
+    #+END_SRC
+    #+ATTR_REVEAL: :frag (appear)
+    #+BEGIN_SRC typescript
+      this.meterHistory$ = this.refreshHistory$.pipe(
+        switchMap(() => this.meteringClient.getMeterHistoryEntries(this.meter.id)),
+        catchError(() => {
+          this.popupService.popUp(ToasterType.ERROR, null, 'ADMIN.METER_HISTORY.REQUEST_FAILED', true);
+          return of([]);
+        })
+      );
+    #+END_SRC
+*** loading indication with async pipe and indicate operator
+    #+ATTR_REVEAL: :frag (appear)
+    #+BEGIN_SRC typescript
+      public updating$ = new BehaviorSubject<boolean>(false);
+    #+END_SRC
+    #+ATTR_REVEAL: :frag (appear)
+    #+BEGIN_SRC html
+      [loading]="updating$ | async"
+    #+END_SRC
+    #+ATTR_REVEAL: :frag (appear)
+    #+BEGIN_SRC typescript
+      updateSubscription
+        .pipe(indicate(this.updating$))
+        .subscribe();
+    #+END_SRC
+    #+REVEAL: split
+    [[sourcepath:/src/app/shared/ts-utils/rxjs-operators.ts][rxjs-operators.ts]]
+    #+BEGIN_SRC typescript
+      export function indicate<T>(indicator: Subject<boolean>): (source: Observable<T>) => Observable<T> {
+        return (source: Observable<T>): Observable<T> => source.pipe(
+          prepare(() => {
+            indicator.next(true);
+          }),
+          finalize(() => {
+            indicator.next(false);
+          })
+        );
+      }
+    #+END_SRC
+*** shareReplay with multiple async pipe subscriptions
+    #+ATTR_REVEAL: :frag (appear)
+    #+BEGIN_SRC html
+      <div>{{ someObservable | async }}</div>
+      ......
+      <div>{{ someObservable | async }}</div>
+    #+END_SRC
+    #+ATTR_REVEAL: :frag (appear)
+    #+BEGIN_SRC typescript
+      someObservable.pipe(
+        shareReplay({
+          bufferSize: 1,
+          refCount: true
+        })
+      );
+    #+END_SRC
+* When to use component/directive/pipe?
+  #+ATTR_REVEAL: :frag (appear)
+- add logic to existing component -> =DIRECTIVE=
+- change element visuals -> =DIRECTIVE=
+- add elements to DOM -> =COMPONENT=
+- transform data without changes to DOM -> =PIPE=
