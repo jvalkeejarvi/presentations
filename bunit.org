@@ -1,0 +1,118 @@
+#+TITLE: bUnit
+#+OPTIONS: toc:nil author:nil timestamp:nil num:nil
+# #+OPTIONS: reveal_slide_number:nil reveal_fragmentinurl:t reveal_history:t reveal_single_file:t
+#+OPTIONS: reveal_slide_number:nil reveal_fragmentinurl:t reveal_history:t
+#+REVEAL_TRANS: fade
+#+REVEAL_THEME: serif
+#+REVEAL_PLUGINS: (highlight)
+# #+REVEAL_ROOT: file:////Users/juuso/revealjs/
+#+REVEAL_ROOT: https://cdn.jsdelivr.net/npm/reveal.js
+# #+REVEAL_HIGHLIGHT_CSS: %r/plugin/highlight/monokai.css
+#+REVEAL_HIGHLIGHT_CSS: https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css
+# #+BEGIN_EXPORT html
+# <style>
+# .reveal  code { font-size: 80%; }
+# .reveal li + li {
+#   margin-top: 25px;
+# }
+# </style>
+# #+END_EXPORT
+
+* Purpose of a unit test
+:PROPERTIES:
+:CUSTOM_ID: purpose
+:END:
+#+ATTR_REVEAL: :frag (appear)
+- verify that the tested unit works as expected using it's public interface
+- internals (eg. private fields/properties/methods) should never be exposed because of testing
+
+* Public interface of a component
+:PROPERTIES:
+:CUSTOM_ID: public
+:END:
+#+ATTR_REVEAL: :frag (appear)
+- markup
+- parameters
+- event callbacks
+
+* What not to test
+:PROPERTIES:
+:CUSTOM_ID: nottotest
+:END:
+#+ATTR_REVEAL: :frag (appear)
+- internals of the component
+- injectables (services); use mocks instead
+- very complex/heavy child components; use stubs instead
+- 3rd party components from libraries; use stubs instead
+
+* Rendering a component
+:PROPERTIES:
+:CUSTOM_ID: render
+:END:
+#+ATTR_REVEAL: :frag (appear) :code_attribs data-line-numbers='|7-8'
+#+BEGIN_SRC csharp
+@code {
+    public class EditorListShould : TestContext
+    {
+        [Fact]
+        public async Task ShouldRender()
+        {
+            var cut = Render<EditorList>(
+                @<EditorList></EditorList>);
+        }
+    }
+}
+#+END_SRC
+
+
+* Locating an element by text content
+:PROPERTIES:
+:CUSTOM_ID: locatebytext
+:END:
+#+ATTR_REVEAL: :frag (appear)
+#+BEGIN_SRC html
+<button>Add new</button>
+#+END_SRC
+#+ATTR_REVEAL: :frag (appear) :code_attribs data-line-numbers='1|2|'
+#+BEGIN_SRC csharp
+var addButton = cut.Find("button:contains('Add new')");
+addButton.Click();
+#+END_SRC
+
+#+ATTR_REVEAL: :frag (appear)
+=:contains= CSS selector can be used to find an element by text content
+
+* Locating an input by label
+:PROPERTIES:
+:CUSTOM_ID: locatebylabeltext
+:END:
+#+ATTR_REVEAL: :frag (appear)
+#+BEGIN_SRC html
+<label>
+  Name:
+  <input type="text" />
+</label>
+#+END_SRC
+#+ATTR_REVEAL: :frag (appear) :code_attribs data-line-numbers='1|2|'
+#+BEGIN_SRC csharp
+var inputLabel = cut.FindByLabelText("Name:");
+inputLabel.Input("Text to input");
+#+END_SRC
+
+* Verifying markup
+:PROPERTIES:
+:CUSTOM_ID: verify
+:END:
+#+ATTR_REVEAL: :frag (appear)
+#+BEGIN_SRC html
+<ul>
+    <li>Item1</li>
+    <li>Item2</li>
+</ul>
+#+END_SRC
+
+#+ATTR_REVEAL: :frag (appear) :code_attribs data-line-numbers='1|2|'
+#+BEGIN_SRC csharp
+var rows = cut.FindAll("li").Select(x => x.TextContent);
+rows.Should().BeEquivalentTo(["Item1", "Item2"]);
+#+END_SRC
