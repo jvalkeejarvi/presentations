@@ -1,0 +1,56 @@
+#+TITLE: Git
+#+OPTIONS: num:nil toc:nil frag:t
+#+AUTHOR: Juuso Valkeejärvi
+#+REVEAL_THEME: night
+#+REVEAL_HLEVEL: 1
+#+REVEAL_TRANS: fade
+#+REVEAL_ROOT: https://cdn.jsdelivr.net/npm/reveal.js
+#+REVEAL_PLUGINS: (markdown highlight)
+#+REVEAL_DEFAULT_FRAG_STYLE: appear
+#+PROPERTY: header-args :exports code
+#+REVEAL_MARGIN: 0.02
+#+REVEAL_MIN_SCALE: 0.1
+#+REVEAL_MAX_SCALE: 1
+#+REVEAL_FRAGMENTINURL: t
+#+REVEAL_HIGHLIGHT_CSS: %r/lib/css/monokai.css
+#+REVEAL_EXTRA_CSS: ./local.css
+* Git
+  #+ATTR_REVEAL: :frag (appear)
+  - avoid using merge in local branches
+    #+ATTR_REVEAL: :frag (appear)
+    - makes history ugly and may result in duplicate commits in PR
+  - run following command to use rebase on pull
+    #+BEGIN_SRC shell
+    git config --global pull.rebase true
+    #+END_SRC
+** git rebase -i
+To rebase last 10 commits run
+   #+BEGIN_SRC shell
+git rebase -i HEAD~10
+   #+END_SRC
+** rebase options for commits
+#+ATTR_REVEAL: :frag (appear)
+- Changing order of commits is done by simply reordering lines
+- =squash=: squash with previous commit
+- =fixup=: like squash but discard squashed commits commit message
+- =reword=: change commit message without changing commit content
+- =edit=: make changes to commit (add/change files etc)
+** git bisect
+#+ATTR_REVEAL: :frag (appear)
+- bisect is useful when you know one commit where something works
+- start bisect with following command
+  #+BEGIN_SRC shell
+  git bisect start [good revision] [bad revision]
+  #+END_SRC
+- check commit history with command
+  #+BEGIN_SRC shell
+  git bisect visualize
+  #+END_SRC
+- mark current commit good or bad
+  #+BEGIN_SRC shell
+  git bisect [good|bad]
+  #+END_SRC
+- stop bisect
+  #+BEGIN_SRC shell
+  git bisect reset
+  #+END_SRC
