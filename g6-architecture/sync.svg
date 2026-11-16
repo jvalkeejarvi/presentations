@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 10 960 120" font-family="Helvetica, Arial, sans-serif" font-size="15">
+  <rect x="0" y="10" width="960" height="120" fill="#ffffff"/>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#334155"/>
+    </marker>
+    <marker id="arrowPink" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#be185d"/>
+    </marker>
+  </defs>
+
+  <!-- Sync -->
+  <text x="20" y="34" font-weight="bold">Synkroninen: "tarvitsen vastauksen nyt"</text>
+  <rect x="20" y="55" width="170" height="56" rx="8" fill="#fff" stroke="#475569" stroke-width="2"/>
+  <text x="105" y="88" text-anchor="middle">recipes</text>
+  <rect x="440" y="55" width="170" height="56" rx="8" fill="#fff" stroke="#475569" stroke-width="2"/>
+  <text x="525" y="88" text-anchor="middle">purchaseproducts</text>
+  <line x1="190" y1="76" x2="438" y2="76" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="438" y1="94" x2="192" y2="94" stroke="#334155" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#arrow)"/>
+  <text x="314" y="68" text-anchor="middle" font-size="13">HTTP generoidulla clientilla</text>
+  <text x="314" y="114" text-anchor="middle" font-size="13">vastaus</text>
+  <text x="650" y="78" font-size="13" fill="#475569">kutsuja odottaa;</text>
+  <text x="650" y="96" font-size="13" fill="#475569">epäonnistuu, jos kohde on alhaalla</text>
+
+</svg>

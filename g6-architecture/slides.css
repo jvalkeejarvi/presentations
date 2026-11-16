@@ -1,0 +1,38 @@
+.reveal {
+  font-size: 32px;
+}
+
+.reveal h1 {
+  font-size: 2.2em;
+}
+
+.reveal h2 {
+  font-size: 1.6em;
+}
+
+.reveal table {
+  font-size: 0.8em;
+}
+
+.reveal pre {
+  width: 100%;
+  font-size: 0.55em;
+}
+
+.reveal pre code {
+  max-height: 640px;
+}
+
+
+.reveal section img {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 12px;
+  box-sizing: border-box;
+}
+
+/* PDF renderers draw the theme's soft shadow as a hard grey border */
+html.print-pdf .reveal pre,
+html.print-pdf .reveal section img {
+  box-shadow: none;
+}
